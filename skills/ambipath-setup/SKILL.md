@@ -23,7 +23,11 @@ Build using the project's established command and inspect the actual output for 
 
 ## Verify and report
 
-Read status again after deployment. Trigger `verify_url` with POST JSON containing a fresh UUID `operationId` when needed; use the current `expectedRevision` if supplied by status. Poll status at the server's retry interval, or every 6 seconds, for at most 2 minutes. A waiting result is pending, not failure. Run `check_url` with a distinct operation ID and report each passing, waiting, or failing result. Do not claim live until the server reports site proof and the installation check confirms the deployed files.
+Read status again after deployment. Trigger `verify_url` with POST JSON containing a fresh UUID `operationId` when needed; use the current `expectedRevision` if supplied by status. Poll status at the server's retry interval, or every 6 seconds, for at most 2 minutes. A waiting result is pending, not failure.
+
+After site proof succeeds, fetch `payload_url` again using the same setup API authorization. Compare its `canonical_origin` and `discovery.files` with the payload used for installation. Ambipath may have verified an HTTPS redirect between the exact website's apex and `www` host. If that changes the canonical origin or files, write the refreshed discovery documents and update the assistant entry in the reading guides to the supplied canonical-host discovery URL. Rebuild and redeploy under the existing deployment authorization before the final installation check below. If deployment is not authorized, report the prepared change and waiting check. Preserve the original site proof and saved website; do not broaden proof to other domains or subdomains, follow arbitrary cross-host redirects, or send the setup code to either website host. Only the setup API's verified canonical origin controls this update. If the canonical origin changes again after this pass, stop and report it rather than redeploying indefinitely.
+
+Run `check_url` with a distinct operation ID and report each passing, waiting, or failing result. Do not claim live until the server reports site proof and the installation check confirms the final deployed files.
 
 If the owner agreed to a test conversation, ask one public test question using the supplied guest connection instructions, await its result, and close that test conversation. Never replay an unresolved question automatically. Report the exact transport, answer, and whether it was live or a local fixture. Without consent, leave this step unrun.
 
