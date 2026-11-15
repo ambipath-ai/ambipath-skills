@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ambipath setup"
+  short_description: "Install and verify Ambipath on your website"
+  default_prompt: "Use $ambipath-setup with the setup block from my Ambipath console."

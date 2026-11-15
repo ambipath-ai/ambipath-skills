@@ -1,0 +1,6 @@
+{
+  "name": "ambipath",
+  "owner": { "name": "Ambipath" },
+  "metadata": { "description": "Ambipath website setup", "version": "0.1.0" },
+  "plugins": [{ "name": "ambipath", "source": "./", "description": "Install and verify Ambipath on your website", "version": "0.1.0" }]
+}
