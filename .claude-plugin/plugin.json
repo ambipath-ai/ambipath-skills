@@ -1,7 +1,7 @@
 {
   "name": "ambipath",
   "description": "Install and verify Ambipath using your signed-in setup block",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": { "name": "Ambipath" },
   "homepage": "https://ambipath.com",
   "repository": "https://github.com/ambipath-ai/ambipath-skills",

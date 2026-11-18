@@ -18,7 +18,7 @@ const updated = skill.replace(/(  content-sha256: ")[^"]+("\n)/, `$1${contentHas
 if (write) { skill = updated; await writeFile(resolve(root, skillPath), skill); }
 else if (updated !== skill) throw new Error('Skill content hash differs; run node scripts/release.mjs --write');
 const files = {};
-for (const name of [skillPath, 'skills/ambipath-setup/references/dns.md', 'skills/ambipath-setup/agents/openai.yaml']) {
+for (const name of [skillPath, 'skills/ambipath-setup/references/dns.md', 'skills/ambipath-setup/agents/openai.yaml', 'skills/ambipath-setup/scripts/merge-directory.mjs']) {
   files[name] = digest(await readFile(resolve(root, name)));
 }
 const manifest = { version, contentHash, files };
@@ -35,7 +35,7 @@ if (consoleDir) {
     version, contentHash, sha256: files[skillPath],
     sourceUrl: `https://github.com/ambipath-ai/ambipath-skills/releases/download/v${version}/SKILL.md`,
     rawUrl: `https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v${version}/${skillPath}`,
-    files: { 'SKILL.md': skill, 'references/dns.md': await readFile(resolve(root, 'skills/ambipath-setup/references/dns.md'), 'utf8') },
+    files: { 'SKILL.md': skill, 'scripts/merge-directory.mjs': await readFile(resolve(root, 'skills/ambipath-setup/scripts/merge-directory.mjs'), 'utf8'), 'references/dns.md': await readFile(resolve(root, 'skills/ambipath-setup/references/dns.md'), 'utf8') },
   };
   const path = resolve(consoleDir, 'packages/core/src/generated/ambipath-setup-skill.ts');
   const text = '// Generated from ambipath-skills by scripts/release.mjs. Do not edit.\nexport const setupSkill = ' + JSON.stringify(asset, null, 2) + ' as const;\n';
