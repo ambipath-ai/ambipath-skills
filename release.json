@@ -1,0 +1,9 @@
+{
+  "version": "0.1.2",
+  "contentHash": "f1bdb02fe3ff42fb747868b94bb228fc92def3c0b8cf01319bd3d9302a3dae8f",
+  "files": {
+    "skills/ambipath-setup/SKILL.md": "14da0ea87f409e02bea52447336318ce8e1be1fa0a18d6976d061a494df589aa",
+    "skills/ambipath-setup/references/dns.md": "39c2a6cd92eee58dba561d4cce4e4b30ba96edbabd94d4b0de48f31434a25362",
+    "skills/ambipath-setup/agents/openai.yaml": "c4c7043b159f3121624da540118383c83496bd014c2289e91e6a657432d14e9d"
+  }
+}
