@@ -12,13 +12,21 @@ const skillPath = 'skills/ambipath-setup/SKILL.md';
 let skill = await readFile(resolve(root, skillPath), 'utf8');
 const version = skill.match(/  version: "([^"]+)"/)?.[1];
 if (!version) throw new Error('Skill version is missing');
+const helperPath = 'skills/ambipath-setup/scripts/merge-directory.mjs';
+const helperHash = digest(await readFile(resolve(root, helperPath)));
+const pinnedSkill = skill
+  .replace(/(  directory-helper-sha256: ")[^"]+("\n)/, `$1${helperHash}$2`)
+  .replace(/const expected = '[^']+'; \/\/ Directory helper SHA-256/, `const expected = '${helperHash}'; // Directory helper SHA-256`);
+if (!pinnedSkill.includes(`/v${version}/${helperPath}`)) throw new Error('Skill helper URL must use the release tag');
+if (write) skill = pinnedSkill;
+else if (pinnedSkill !== skill) throw new Error('Skill helper hash differs; run node scripts/release.mjs --write');
 const normalized = skill.replace(/(  content-sha256: ")[^"]+("\n)/, '$1$2');
 const contentHash = digest(normalized);
 const updated = skill.replace(/(  content-sha256: ")[^"]+("\n)/, `$1${contentHash}$2`);
 if (write) { skill = updated; await writeFile(resolve(root, skillPath), skill); }
 else if (updated !== skill) throw new Error('Skill content hash differs; run node scripts/release.mjs --write');
 const files = {};
-for (const name of [skillPath, 'skills/ambipath-setup/references/dns.md', 'skills/ambipath-setup/agents/openai.yaml', 'skills/ambipath-setup/scripts/merge-directory.mjs']) {
+for (const name of [skillPath, 'skills/ambipath-setup/references/dns.md', 'skills/ambipath-setup/agents/openai.yaml', helperPath]) {
   files[name] = digest(await readFile(resolve(root, name)));
 }
 const manifest = { version, contentHash, files };
@@ -35,6 +43,10 @@ if (consoleDir) {
     version, contentHash, sha256: files[skillPath],
     sourceUrl: `https://github.com/ambipath-ai/ambipath-skills/releases/download/v${version}/SKILL.md`,
     rawUrl: `https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v${version}/${skillPath}`,
+    directoryHelper: {
+      url: `https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v${version}/${helperPath}`,
+      sha256: helperHash,
+    },
     files: { 'SKILL.md': skill, 'scripts/merge-directory.mjs': await readFile(resolve(root, 'skills/ambipath-setup/scripts/merge-directory.mjs'), 'utf8'), 'references/dns.md': await readFile(resolve(root, 'skills/ambipath-setup/references/dns.md'), 'utf8') },
   };
   const path = resolve(consoleDir, 'packages/core/src/generated/ambipath-setup-skill.ts');

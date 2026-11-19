@@ -1,6 +1,6 @@
 {
   "name": "ambipath",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Install and verify Ambipath on your website",
   "contextFileName": "skills/ambipath-setup/SKILL.md"
 }

@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: 26.13.0
       - run: node scripts/release.mjs
+      - run: node --test tests/*.test.mjs
       - name: Require version tag agreement
         if: startsWith(github.ref, 'refs/tags/')
         run: test "$GITHUB_REF_NAME" = "v$(cat VERSION)"

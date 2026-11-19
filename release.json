@@ -1,10 +1,10 @@
 {
-  "version": "0.2.0",
-  "contentHash": "d59af88ba67ee1f63fd82d05a30b5eb1e479b6e6ca246a8b72a534c731a36d74",
+  "version": "0.2.1",
+  "contentHash": "c0110913e35333e5053399bbf9d63a9ca88a37ed2c69827bc6616c74ccf89de1",
   "files": {
-    "skills/ambipath-setup/SKILL.md": "195e37ca229b1965910f173374ff8a0fa905620fe3a7f9dcb509c782db62761d",
+    "skills/ambipath-setup/SKILL.md": "27e119f1e69b6efba5fbd2b7e172293bf589dff0e9ffcc90676ae656bb676f20",
     "skills/ambipath-setup/references/dns.md": "39c2a6cd92eee58dba561d4cce4e4b30ba96edbabd94d4b0de48f31434a25362",
     "skills/ambipath-setup/agents/openai.yaml": "c4c7043b159f3121624da540118383c83496bd014c2289e91e6a657432d14e9d",
-    "skills/ambipath-setup/scripts/merge-directory.mjs": "5612f80f074fc8ca237a10240be3822d8dbf665a6e1fd6935e34b24dbae4d6a4"
+    "skills/ambipath-setup/scripts/merge-directory.mjs": "1ac02a74ca208cd2fe4a3229da2c3fba485929b6cb15e858ffae36a3f2b217b3"
   }
 }

@@ -2,12 +2,12 @@
 
 Install Ambipath on an existing website with the setup block copied from your signed-in Ambipath console. The reusable skill contains no account details. The block supplies the short-lived, workspace-scoped setup code and exact files.
 
-## Install version 0.2.0
+## Install version 0.2.1
 
 Skills CLI (Claude Code, Codex, Cursor and other supported agents):
 
 ```sh
-npx skills@1.7.6 add https://github.com/ambipath-ai/ambipath-skills/tree/v0.2.0 --skill ambipath-setup -y
+npx skills@1.7.6 add https://github.com/ambipath-ai/ambipath-skills/tree/v0.2.1 --skill ambipath-setup -y
 ```
 
 To select one agent, add `--agent codex`, `--agent claude-code` or `--agent cursor`. Run this inside the website project. Then paste the setup block from your console and ask the agent to use `ambipath-setup`.
@@ -15,23 +15,23 @@ To select one agent, add `--agent codex`, `--agent claude-code` or `--agent curs
 Claude Code plugin:
 
 ```sh
-claude plugin marketplace add https://github.com/ambipath-ai/ambipath-skills.git#v0.2.0
+claude plugin marketplace add https://github.com/ambipath-ai/ambipath-skills.git#v0.2.1
 claude plugin install ambipath@ambipath --scope project
 ```
 
 Gemini CLI extension:
 
 ```sh
-gemini extensions install https://github.com/ambipath-ai/ambipath-skills --ref v0.2.0
+gemini extensions install https://github.com/ambipath-ai/ambipath-skills --ref v0.2.1
 ```
 
-Without Node or a supported installer, read [the same versioned skill](https://github.com/ambipath-ai/ambipath-skills/blob/v0.2.0/skills/ambipath-setup/SKILL.md) and its linked DNS reference in your coding agent. Keep the setup block private.
+Without Node or a supported installer, read [the same versioned skill](https://github.com/ambipath-ai/ambipath-skills/blob/v0.2.1/skills/ambipath-setup/SKILL.md) and its linked DNS reference in your coding agent. Keep the setup block private.
 
 DNS verification is optional for the on-site assistant. The skill asks for confirmation before any DNS change, and uses existing provider access. It never needs the owner's password or a full-access Ambipath token. Deployments and test conversations follow the owner's current authorization.
 
 ## Verify the package
 
-The repository root is both a Claude Code marketplace/plugin and a Gemini extension. `skills/ambipath-setup` is the canonical skill for every installer. No server, MCP credentials or dependency installation is included. The public release tag is `v0.2.0`.
+The repository root is both a Claude Code marketplace/plugin and a Gemini extension. `skills/ambipath-setup` is the canonical skill for every installer. No server, MCP credentials or dependency installation is included. The public release tag is `v0.2.1`.
 
 
 The console download and setup ZIP use the exact `SKILL.md` release asset. Its
@@ -48,3 +48,13 @@ Publish the skill release before the console revision that requires it.
 The authenticated console ZIP contains `SKILL.md`, `references/dns.md`, and a
 private `setup.json` in a folder named with its generation time and code expiry.
 The reusable public skill never contains setup codes, proof tokens or owner data.
+
+Version 0.2.1 also makes the directory helper available from a pasted setup block
+without the ZIP. The skill downloads the tag-pinned helper, verifies its SHA-256,
+then merges local files. The ZIP contains the same helper bytes. Fresh setup data
+explicitly maps recognized older tenant-based directory identifiers to deployment
+identifiers; the helper preserves unknown fields and entry order, and refuses
+ambiguous collisions without writing. Never place the private setup input in a
+public build or commit.
+
+Run `node --test tests/*.test.mjs` for the local merge and migration checks.

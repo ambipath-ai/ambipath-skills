@@ -2,8 +2,9 @@
 name: ambipath-setup
 description: Install and verify Ambipath on an existing website using the owner's private setup.json or setup block, with on-domain discovery and optional DNS verification.
 metadata:
-  version: "0.2.0"
-  content-sha256: "d59af88ba67ee1f63fd82d05a30b5eb1e479b6e6ca246a8b72a534c731a36d74"
+  version: "0.2.1"
+  directory-helper-sha256: "1ac02a74ca208cd2fe4a3229da2c3fba485929b6cb15e858ffae36a3f2b217b3"
+  content-sha256: "c0110913e35333e5053399bbf9d63a9ca88a37ed2c69827bc6616c74ccf89de1"
 ---
 
 # Set up Ambipath
@@ -20,7 +21,41 @@ Fetch `status_url` and `payload_url`. Confirm the returned deployment and websit
 
 Inspect the project's instructions, framework, maintained shared layout and deployment path. Preserve existing content and deliberate edits. Add `snippet` once in the shared layout, including the supplied discovery links. Publish `site_proof.body` as JSON at `site_proof.path` and add `site_proof.metaTag` to the HTML head when the host supports both. When a host supports only one proof method, use it and report the limitation.
 
-Use the supplied `discovery.files` for the paths your host permits. Read the first Agentmap: directive in robots.txt and any rel="ard" link before editing. Use the existing effective HTTPS directory when present. Merge the supplied Poppy and MCP Server Card entries by identifier, preserving unknown fields, third-party entries, ordering and existing rules. If the directory is managed elsewhere, give its maintainer the entries and report the limitation. From the private ZIP, run `node scripts/merge-directory.mjs setup.json <editable-directory.json>` against the local copy before deploying. Point rel="ard" at the effective directory. Append one Agentmap: directive only when none exists and the owner controls robots.txt. For legacy consumers, merge the same entries into /.well-known/ai-catalog.json only when requested and editable. On removal, delete only the installed identifiers and links or directives added by this installation.
+Use the supplied `discovery.files` for the paths your host permits. Read the first Agentmap: directive in robots.txt and any rel="ard" link before editing. Use the existing effective HTTPS directory when present. Merge the supplied Poppy and MCP Server Card entries by identifier, preserving unknown fields, third-party entries, ordering and existing rules. If the directory is managed elsewhere, give its maintainer the entries and report the limitation. Point rel="ard" at the effective directory. Append one Agentmap: directive only when none exists and the owner controls robots.txt. For legacy consumers, merge the same entries into /.well-known/ai-catalog.json only when requested and editable. On removal, delete only the installed identifiers and links or directives added by this installation.
+
+### Merge the directory from a ZIP or pasted block
+
+The helper is public, version-pinned and SHA-256 checked. With a ZIP, run `node scripts/merge-directory.mjs setup.json <editable-directory.json>`. With only a pasted block, save the full prompt (or its JSON) privately as `setup-block.txt`, then run the following from your website project, changing only the two local paths. This downloads the same helper without sending the setup data or setup code anywhere:
+
+```sh
+node --input-type=module - "setup-block.txt" "public/.well-known/ard.json" <<'NODE'
+import { createHash } from 'node:crypto';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+const url = 'https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v0.2.1/skills/ambipath-setup/scripts/merge-directory.mjs';
+const expected = '1ac02a74ca208cd2fe4a3229da2c3fba485929b6cb15e858ffae36a3f2b217b3'; // Directory helper SHA-256
+const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
+if (!response.ok) throw new Error(`Helper download failed: HTTP ${response.status}`);
+const bytes = Buffer.from(await response.arrayBuffer());
+if (createHash('sha256').update(bytes).digest('hex') !== expected) throw new Error('Helper digest differs; do not execute it.');
+const temporary = await mkdtemp(join(tmpdir(), 'ambipath-merge-'));
+try {
+  const helper = join(temporary, 'merge-directory.mjs');
+  await writeFile(helper, bytes, { mode: 0o600 });
+  const result = spawnSync(process.execPath, [helper, ...process.argv.slice(2).map(path => resolve(path))], { stdio: 'inherit' });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error('Directory merge stopped; review the reported conflict.');
+} finally { await rm(temporary, { recursive: true, force: true }); }
+NODE
+```
+
+Run this only against the owner's editable local copy of the effective directory, never a platform-owned file. Review the diff before deploying. Repeated runs make no changes once current. The helper keeps third-party entries, their order, unknown fields and directory-level rules. It writes atomically and refuses symlinks or a path shared with the private input.
+
+Older setups used a tenant ID in the ARD identifier; current setups use the deployment ID. The fresh private payload's `discovery.directoryMerge.migrations` explicitly maps the known old identifier to the current one and lists the expected service URL and type. Migrate only a matching entry at its existing position. Never migrate an entry just because its name matches. Duplicate identities, an unrecognized URL/type, or both old and new identities cause a conflict with no write; inspect them with the owner or directory maintainer before proceeding. Keep the private setup file out of Git and the website build.
+
+The ARD `application/poppy+json` and `application/mcp-server-card+json` values describe protocol-specific JSON resources; they are not claims of registered media types. The HTML discovery link uses `application/json`. Do not claim a Lighthouse pass without running it on the deployed site.
 
 Publish the supplied PAP 1.0 `/.well-known/poppy.json` and 0.4 fallback at their on-domain locations. Merge `discovery.readingGuides` into existing `llms.txt` and `agents.md`, creating them where permitted. Keep existing reading instructions and public API documentation. Preserve dot-folders in the deployed output. A link to Ambipath's hosted manifest is useful information but does not replace the site's own PAP discovery file. PAP means the independent Personal Agent Protocol; Ambipath runs the Company-side service.
 
@@ -40,4 +75,4 @@ Run `check_url` with a distinct operation ID. Report each passing, waiting or fa
 
 If the owner authorizes a test conversation, ask one public question through the supplied guest instructions, await that same result and close the test conversation. Never replay an unresolved question automatically. Report the actual transport and answer, distinguishing live results from fixtures.
 
-DNS is optional for the on-site assistant. Read `references/dns.md` from the setup ZIP or installed skill only when the owner wants domain verification. If using the standalone release file, read the [same versioned DNS reference](https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v0.2.0/skills/ambipath-setup/references/dns.md). If skipping it, explain: "Your assistant can still go live on this website. Add domain verification later for other addresses such as shop.yourdomain, or to confirm commitments made to personal agents away from the website. It is one TXT record, available in Installation → Optional: verify your domain." Include the supplied record when handing it to the owner. End with the deployed URL, proof state, check results and remaining owner steps.
+DNS is optional for the on-site assistant. Read `references/dns.md` from the setup ZIP or installed skill only when the owner wants domain verification. If using the standalone release file, read the [same versioned DNS reference](https://raw.githubusercontent.com/ambipath-ai/ambipath-skills/v0.2.1/skills/ambipath-setup/references/dns.md). If skipping it, explain: "Your assistant can still go live on this website. Add domain verification later for other addresses such as shop.yourdomain, or to confirm commitments made to personal agents away from the website. It is one TXT record, available in Installation → Optional: verify your domain." Include the supplied record when handing it to the owner. End with the deployed URL, proof state, check results and remaining owner steps.
